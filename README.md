@@ -21,6 +21,6 @@ Reboot
 Log everything the script did along the way
 
 # How to get support
-Read the .txt instructions text file inside the script filder.
+Read the .txt instructions text file inside the script folder.
 
 
