@@ -1,0 +1,163 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+    "folderRecipe": {
+      "type": "object",
+      "hidden": true,
+      "patternProperties": {
+        "^(\\.\\..+|\\..*[^.]|\\..{2,}|(?!\\.\\.|\\.).*)$": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/recipe"
+            },
+            {
+              "$ref": "#/definitions/folderRecipe"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "folderRecipeType": {
+      "type": "object",
+      "hidden": true,
+      "patternProperties": {
+        "^(\\.\\..+|\\..*[^.]|\\..{2,}|(?!\\.\\.|\\.).*)$": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/recipeType"
+            },
+            {
+              "$ref": "#/definitions/folderRecipeType"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "recipe": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "recipeTypeName": { "type": "string" },
+        "values": {
+          "type": "object",
+          "additionalProperties": {
+          }
+        }
+      },
+      "required": [ "recipeTypeName", "values" ]
+    },
+    "recipeType": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "recipeTypeNames": {
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "members": {
+          "type": "object",
+
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string",
+                    "default": ""
+                  },
+                  "defaultValue": {},
+                  "schema": {
+                    "$ref": "tchmi:server#/definitions/schemaRef"
+                  },
+                  "unit": {
+                    "type": "string",
+                    "default": ""
+                  },
+                  "comment": {
+                    "type": "string",
+                    "default": ""
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "group": {
+                    "type": "string",
+                    "default": ""
+                  },
+                  "order": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "symbol",
+                  "defaultValue"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "recipeType": {
+                    "type": "string"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "order": {
+                    "type": "integer"
+                  },
+                  "group": {
+                    "type": "string",
+                    "default": ""
+                  },
+                  "unit": {
+                    "type": "string",
+                    "default": ""
+                  },
+                  "comment": {
+                    "type": "string",
+                    "default": ""
+                  }
+                },
+                "required": [ "recipeType" ]
+              }
+            ]
+          }
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": {
+          },
+          "properties": {
+            "enabled": {
+              "type": "string",
+              "enum": [ "None", "Disabled" ]
+            },
+            "comment": {
+              "type": "string",
+              "default": ""
+            }
+          }
+        }
+      },
+      "required": [
+        "members"
+      ]
+    }
+  },
+  "properties": {
+    "recipeTypeList": {
+      "$ref": "#/definitions/folderRecipeType"
+    },
+    "recipeList": {
+      "$ref": "#/definitions/folderRecipe"
+    }
+  },
+  "type": "object",
+  "required": [ "recipeList", "recipeTypeList" ],
+  "additionalProperties": false
+}

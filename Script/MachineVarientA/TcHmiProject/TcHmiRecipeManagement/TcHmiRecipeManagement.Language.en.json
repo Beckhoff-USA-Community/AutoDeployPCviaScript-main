@@ -1,0 +1,9 @@
+{
+  "locale": "en",
+  "localizedText": {
+    "RECIPELIST": "RecipeList",
+    "MSG_SERVER_ERROR": "Server error : ",
+    "MSG_RM_READ_ERROR": "Read error: {0}",
+    "MSG_RM_ACTIVATE_WARNING": "Activate warning: {0}"
+  }
+}

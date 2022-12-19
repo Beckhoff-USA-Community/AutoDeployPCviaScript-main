@@ -1,0 +1,1 @@
+Do not place installers directly in this folder. Place them in the subfolders. Script is designed to search for installer inside subfolder.

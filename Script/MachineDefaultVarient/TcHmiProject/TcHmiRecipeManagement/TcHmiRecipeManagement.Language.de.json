@@ -1,0 +1,9 @@
+{
+  "$schema": "../TcHmiSrv/schema/Language.Schema.json",
+  "locale": "de",
+  "localizedText": {
+    "RECIPELIST": "Rezept-Liste",
+    "MSG_RM_READ_ERROR": "Fehler beim Lesen: {0}",
+    "MSG_RM_ACTIVATE_WARNING": "Warnung beim Aktivieren: {0}"
+  }
+}

@@ -1,0 +1,23 @@
+﻿{
+  "parameters": [
+    {
+      "name": "data-tchmi-funmode",
+      "displayName": "FunMode",
+      "visible": true,
+      "type": "tchmi:general#/definitions/BOOL",
+      "category": "",
+      "description": "",
+      "requiredOnCompile": false,
+      "readOnly": false,
+      "bindable": true,
+      "heritable": true,
+      "propertyName": "FunMode",
+      "propertySetterName": "setFunMode",
+      "propertyGetterName": "getFunMode",
+      "refTo": ""
+    }
+  ],
+  "virtualRights": [],
+  "$schema": "../../Packages/Beckhoff.TwinCAT.HMI.Framework.12.746.0/runtimes/native1.12-tchmi/Schema/UserControlConfig.Schema.json",
+  "description": ""
+}

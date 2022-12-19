@@ -1,0 +1,29 @@
+<?xml version="1.0" standalone="yes"?>
+<Configuration xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="CurrentConfigDataStores.xsd">
+	<Header>
+		<Configurator>TF6420 Database Configurator 3.0</Configurator>
+		<Timestamp>2022-10-19T15:35:46</Timestamp>
+		<FileVersion>2.1</FileVersion>
+		<TargetSystemNetID>127.0.0.1.1.1</TargetSystemNetID>
+	</Header>
+	<GlobalConfig>
+		<GCfg Name="LogMode">1</GCfg>
+		<GCfg Name="LogPath">C:\TwinCAT\Functions\TF6420-Database-Server\Win32\Server</GCfg>
+		<GCfg Name="MaxLogFileSize">10</GCfg>
+		<GCfg Name="Impersonate">0</GCfg>
+		<GCfg Name="DBNULLAllowed">False</GCfg>
+		<GCfg Name="DBConnectionTimeout">15</GCfg>
+		<GCfg Name="DBCommandTimeout">30</GCfg>
+		<GCfg Name="MaxByteArrayLength">256</GCfg>
+		<GCfg Name="MaxStringLength">256</GCfg>
+		<GCfg Name="WSTRINGSupportActive">False</GCfg>
+		<GCfg Name="PwdInfos">tZuYPxhe+G5NKHWLYSZE+N/7qiYGJ4dA</GCfg>
+	</GlobalConfig>
+	<BaseConfig>
+		<DataStores>
+			<Databases />
+		</DataStores>
+		<Devices />
+		<AutoLogGroups />
+	</BaseConfig>
+</Configuration>
