@@ -123,17 +123,17 @@ $InstallFileExist = Test-Path -Path $destination
 if($InstallFileExist -eq 0 -AND 0){
 ### THIS does not work. Need to find a location that has download available without a login otherwise this is overly complicated. 
 
-    Write-Output $("Downloading TwinCAT 3.1 Installer")
+    #Write-Output $("Downloading TwinCAT 3.1 Installer")
     #$credential = Get-Credential
     # Source file location
-    $source = 'https://www.beckhoff.com/forms/twincat3/downloadFile.aspx?logID=d133d80b-32d1-4c69-a878-f803c88b733b&filename=TC31-Full-Setup.3.1.4024.35.zip&version=3.1.4024.35&pimID=530163029&email=k.robbens@beckhoff.com'
+    #$source = 'https://www.beckhoff.com/forms/twincat3/downloadFile.aspx?logID=d133d80b-32d1-4c69-a878-f803c88b733b&filename=TC31-Full-Setup.3.1.4024.35.zip&version=3.1.4024.35&pimID=530163029&email=k.robbens@beckhoff.com'
     #Download the file
     #Start-BitsTransfer -Source  $source -Destination  $destination # -Credential $credential
 
         # Create the new WebClient
-    $webClient = [System.Net.WebClient]::new()
+    #$webClient = [System.Net.WebClient]::new()
     # Download the file
-    $webClient.DownloadFile($source, $destination)
+    #$webClient.DownloadFile($source, $destination)
 }
 ##########################################################################################################################
 #END Auto Download TwinCAT installers ---- Experimental
@@ -219,7 +219,7 @@ switch([int]$InstallProgress) {
         Reboot
    } 
 
-   3 #After first installers reboot
+   3 #After installers finished and PC has rebooted reboot
    { # Anything you need to do after installers run and a reboot. IE: put things into run mode and maybe copy some files.
         if($EnableInstallTwinCAT){
             WriteLog $("Set Registery key for TwinCAT to run mode on bootup")
@@ -236,6 +236,9 @@ switch([int]$InstallProgress) {
         WriteLog $("Setting IP address to: N/A")
         #Get-NetIPAddress -AddressFamily IPv4
         #New-NetIPAddress -InterfaceIndex 12 -IPAddress 192.168.0.1
+
+        WriteLog $("Setting AMS Net Id to: N/A")
+        #Set-ItemProperty -path HKLM:\SOFTWARE\WOW6432Node\Beckhoff\TwinCAT3\System\ -Name "AmsnetId" -Value ([byte[]](0x01,0x01,0x01,0x01,0x01,0x01))
 
         WriteLog $("Delete auto start script command from: " + $StartupFilePath)
         Remove-Item -Path $StartupFilePath
