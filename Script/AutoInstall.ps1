@@ -60,40 +60,6 @@ $TwinCATInstallerFolderPath =  $($Scriptdir + '\' + $SubFolderProgramsToBeInstal
 ## End Settings
 #############################################################################################################################
 
-#############################################################################################################################
-## Checks  :: Designed to check if user has script configured. IE: did they copy the installers
-##########################################################################################################################
-if($EnableInstallTwinCATHMI)
-{
-    if($(PathFolderHasExecutableFile $HMIInstallerFolderPath) -eq $false)
-    {
-        WriteLog $("Missing HMI installer. Please disable HMI installer or add the installer to the folder outlined in the help file.")
-         [System.Windows.MessageBox]::Show('Error - HMI installer does not exist')
-        Exit
-    }
-}
-
-if($EnableInstallChrome)
-{
-    if($(PathFolderHasExecutableFile $ChromeInstallerFolderPath) -eq $false)
-    {
-        WriteLog $("Missing Chrome files. Please disable chrome installer by editing script tag EnableInstallChrome or add the files to the folder outlined in the help file.")
-         [System.Windows.MessageBox]::Show('Error - Missing chrome install files. ')
-        Exit
-    }
-}
-if($EnableInstallTwinCAT)
-{
-    if($(PathFolderHasExecutableFile $TwinCATInstallerFolderPath) -eq $false)
-    {
-        WriteLog $("Missing TwinCAT installer. Please disable TwinCAT installer or add the installer to the folder outlined in the help file.")
-         [System.Windows.MessageBox]::Show('Error - TwinCAT installer not found')
-        Exit
-    }
-}
-##########################################################################################################################
-## End Checks
-#############################################################################################################################
 
 #############################################################################################################################
 ## Load file which indicates installation progress. This is important if installation requires Reboots
@@ -118,6 +84,42 @@ if($EnableInstallTwinCAT)
 #############################################################################################################################
 
 
+#############################################################################################################################
+## Checks  :: Designed to check if user has script configured. IE: did they copy the installers
+##########################################################################################################################
+if($InstallProgress -eq [int]0){ #Only check the installers on the first start of the installer. Found a problem where sometimes on bootup script fails a check. Unknown why.
+    if($EnableInstallTwinCATHMI)
+    {
+        if($(PathFolderHasExecutableFile $HMIInstallerFolderPath) -eq $false)
+        {
+            WriteLog $("Missing HMI installer. Please disable HMI installer or add the installer to the folder outlined in the help file.")
+             [System.Windows.MessageBox]::Show('Error - HMI installer does not exist')
+            Exit
+        }
+    }
+
+    if($EnableInstallChrome)
+    {
+        if($(PathFolderHasExecutableFile $ChromeInstallerFolderPath) -eq $false)
+        {
+            WriteLog $("Missing Chrome files. Please disable chrome installer by editing script tag EnableInstallChrome or add the files to the folder outlined in the help file.")
+             [System.Windows.MessageBox]::Show('Error - Missing chrome install files. ')
+            Exit
+        }
+    }
+    if($EnableInstallTwinCAT)
+    {
+        if($(PathFolderHasExecutableFile $TwinCATInstallerFolderPath) -eq $false)
+        {
+            WriteLog $("Missing TwinCAT installer. Please disable TwinCAT installer or add the installer to the folder outlined in the help file.")
+             [System.Windows.MessageBox]::Show('Error - TwinCAT installer not found')
+            Exit
+        }
+    }
+}
+##########################################################################################################################
+## End Checks
+#############################################################################################################################
 
 #############################################################################################################################
 #Copy Script from USB or temperatery directory to a suitable directory for working.
