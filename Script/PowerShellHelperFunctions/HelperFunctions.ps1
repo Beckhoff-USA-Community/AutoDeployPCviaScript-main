@@ -126,6 +126,34 @@ function CopyFolderToFolder($ToFolder, $FromFolder, $DeleteFilesInCopyToFolder)
             Write-Output "Debug Mode - Reboot Skipped" 
         }
     }
+    function FinishAndReboot() 
+    {   
+        ###Final cleanup
+        WriteLog $("Delete auto start script command from: " + $StartupFilePath)
+        Remove-Item -Path $StartupFilePath
+
+        #Remove progress folder so not to leave a trace. This is not needed but some people want the install progress to not leave anything behind.
+        WriteLog $("Delete progress folder")
+        Get-ChildItem -Path $LocalDirectoryProgramsToBeInstalled -Include *.* -File -Recurse | foreach { $_.Delete()}
+        Remove-Item $LocalDirectoryProgramsToBeInstalled
+
+
+        Write-Output $("####################################################################")
+        Write-Output $("##################### Finishing Installation #######################")
+        Write-Output $("####################################################################")
+        Write-Output $("")
+        Write-Output  $("Final Reboot started")
+        
+        WriteLog $("Reboot Started")
+        if($EnableDebugMode -ne 1){      
+            Start-Sleep -Seconds 5
+            Restart-Computer
+            Exit
+        }
+        else{ 
+            Write-Output "Debug Mode - Reboot Skipped" 
+        }
+    }
 
 ##########################################################################################################################
 ## End Declare functions

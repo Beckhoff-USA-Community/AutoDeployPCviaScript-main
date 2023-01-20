@@ -305,27 +305,15 @@ switch([int]$InstallProgress) {
         WriteLog $("Setting AMS Net Id to: N/A")
         #Set-ItemProperty -path HKLM:\SOFTWARE\WOW6432Node\Beckhoff\TwinCAT3\System\ -Name "AmsnetId" -Value ([byte[]](0x01,0x01,0x01,0x01,0x01,0x01))
 
-        WriteLog $("Delete auto start script command from: " + $StartupFilePath)
-        Remove-Item -Path $StartupFilePath
-
-        WriteLog $("Delete progress folder")
-        Remove-Item -Path $StartupFilePath
-        ##$InstallProgress = [int]100
-        ##SaveSettingToFile $InstallProgress
-
-        Write-Output $("####################################################################")
-        Write-Output $("##################### Finishing Installation #######################")
-        Write-Output $("####################################################################")
-        Write-Output $("")
-        Write-Output  $("Final Reboot started")
-
-        #while we don't need to reboot, but lets test to make sure everthing loaded good
-        Reboot
+        #The following function does everything needed to clean up the project.
+        FinishAndReboot
    } 
 
    4  #Another reboot if needed
    {
         ##If extra reboots needed.
+
+        #Move "FinishAndReboot" function to here if you going to use this.
 
    } 
 
