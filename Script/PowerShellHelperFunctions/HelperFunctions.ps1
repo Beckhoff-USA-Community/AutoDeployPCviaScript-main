@@ -79,7 +79,7 @@ function CopyFolderToFolder($ToFolder, $FromFolder, $DeleteFilesInCopyToFolder)
     
     function GetFilePathFromFolder($FolderPath) 
     {   
-        $InstallerFileName = Get-ChildItem -Path  $FolderPath -Force -Recurse -File | Select-Object -First 1
+        $InstallerFileName = Get-ChildItem -Path  $FolderPath -Force -Recurse -File | where Name -NE '.gitignore' |  Select-Object -First 1
 
 
         $Result = $FolderPath.TrimEnd('\') + '\' + $InstallerFileName

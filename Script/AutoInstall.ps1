@@ -1,7 +1,16 @@
-﻿#############################################################################################################################
+﻿#*****************************************************************************/
+#*    Title: Auto Deplay PC
+#*    Author: Sidelinger, S
+#*    Date: 2023
+#*    Code version: 2.1
+#*    Availability: https://github.com/Beckhoff-USA-Community/AutoDeployPCviaScript-main
+#****************************************************************************/
+
+
+#############################################################################################################################
 ## Input Parameters
 ##########################################################################################################################
-param($VarientSubFolder, $EnableDebugMode)
+param($VarientSubFolder, $EnableDebugMode, $ResetInsallProgress)
 ##########################################################################################################################
 #############################################################################################################################
 
@@ -34,6 +43,7 @@ $EnableUninstallTwinCATFirst = 1
 $EnableInstallTwinCAT = $true
 $EnableInstallTwinCATHMI = $true
 $EnableInstallChrome = $true
+$EnableCopyTwinSAFEbinFile = $true
 
 $CopyFilesToLocalDirectory= 0 # set to 1 if you wish to move the entire script and install files to the local hard drive. Can be nice if you wish to pull the USB stick out while installation is ongoing.
 $SubFolderProgramsToBeInstalled="ProgramsToBeInstalled" #Directory where TwinCAT install files are located. Can be a sub directory or a directory with a root name.
@@ -58,6 +68,12 @@ $RootInstallFolderExist = Test-Path -Path $LocalDirectoryProgramsToBeInstalled
          $InstallProgress=[int]0 
 
         }
+    if($ResetInsallProgress -eq 1)
+    {
+        WriteLog $("Current Install Progress: " + $InstallProgress + "    Resetting Insall Progress.")
+        SaveSettingToFile 0
+        exit
+    }
 
 ##########################################################################################################################
 ## End Load file
@@ -191,6 +207,11 @@ switch([int]$InstallProgress) {
 
             WriteLog $("Copying Boot folder into TwinCAT 3")
             CopyFolderToFolder "C:\TwinCAT\3.1\Boot" "*\TwinCATBootFolder" 0
+
+            if($EnableCopyTwinSAFEbinFile){
+                WriteLog $("Copying TwinSAFE .bin folder to C:\TwinSAFEProject")
+                CopyFolderToFolder "C:\TwinSAFEProject" "*\TwinSAFEProject" 0
+            }
         }
 
         if($EnableInstallTwinCATHMI){
