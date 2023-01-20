@@ -12,6 +12,7 @@ Install Chromium
 Insert license file  
 Insert Boot project  
 Insert HMI project  
+Copy TwinSAFE bin file to local directory
 Reboot  
 Set auto start TwinCAT to true  
 Set local IP address  
@@ -23,4 +24,5 @@ Log everything the script did along the way
 # How to get support
 Read the .txt instructions text file inside the script folder.
 
-
+#Auto deploy TwinCAT
+Added some sample code on how to handle downloading TwinSAFE project automaticly via PLC code. 
