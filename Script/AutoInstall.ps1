@@ -26,11 +26,12 @@ Set-ExecutionPolicy Unrestricted -force
 #############################################################################################################################
 ## Init
 ##########################################################################################################################
-    $scriptPath = $MyInvocation.MyCommand.Path #Get script location and name. Used later on to know if this was executed on a flash disk or not. 
-    $Scriptdir = Split-Path $scriptPath
-    $scriptName = Split-Path $scriptPath -leaf
-    . $($PSScriptRoot + '\PowerShellHelperFunctions\HelperFunctions.ps1') #Load another script file
-    $Logfile = $($Scriptdir + "\proc_$env:computername.log") 
+Add-Type -AssemblyName PresentationFramework  #So that windows message box works.
+$scriptPath = $MyInvocation.MyCommand.Path #Get script location and name. Used later on to know if this was executed on a flash disk or not. 
+$Scriptdir = Split-Path $scriptPath
+$scriptName = Split-Path $scriptPath -leaf
+. $($PSScriptRoot + '\PowerShellHelperFunctions\HelperFunctions.ps1') #Load another script file
+$Logfile = $($Scriptdir + "\proc_$env:computername.log") 
 ##########################################################################################################################
 ## End Init
 #############################################################################################################################
@@ -93,7 +94,8 @@ if($InstallProgress -eq [int]0){ #Only check the installers on the first start o
         if($(PathFolderHasExecutableFile $HMIInstallerFolderPath) -eq $false)
         {
             WriteLog $("Missing HMI installer. Please disable HMI installer or add the installer to the folder outlined in the help file.")
-             [System.Windows.MessageBox]::Show('Error - HMI installer does not exist')
+            [System.Windows.MessageBox]::Show('Error - HMI installer does not exist')
+            Read-Host -Prompt "Press Enter to exit"
             Exit
         }
     }
@@ -103,8 +105,9 @@ if($InstallProgress -eq [int]0){ #Only check the installers on the first start o
         if($(PathFolderHasExecutableFile $ChromeInstallerFolderPath) -eq $false)
         {
             WriteLog $("Missing Chrome files. Please disable chrome installer by editing script tag EnableInstallChrome or add the files to the folder outlined in the help file.")
-             [System.Windows.MessageBox]::Show('Error - Missing chrome install files. ')
+            [System.Windows.MessageBox]::Show('Error - Missing chrome install files. ')
             Exit
+            Read-Host -Prompt "Press Enter to exit"
         }
     }
     if($EnableInstallTwinCAT)
@@ -112,8 +115,9 @@ if($InstallProgress -eq [int]0){ #Only check the installers on the first start o
         if($(PathFolderHasExecutableFile $TwinCATInstallerFolderPath) -eq $false)
         {
             WriteLog $("Missing TwinCAT installer. Please disable TwinCAT installer or add the installer to the folder outlined in the help file.")
-             [System.Windows.MessageBox]::Show('Error - TwinCAT installer not found')
+            [System.Windows.MessageBox]::Show('Error - TwinCAT installer not found')
             Exit
+            Read-Host -Prompt "Press Enter to exit"
         }
     }
 }
