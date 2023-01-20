@@ -1,5 +1,4 @@
 Report bugs and recommendations to s.sidelinger@beckhoff.com
-
 Steps to use this script program to auto setup PC, install TwinCAT, HMI, and install your program.
 Enjoy! 
 
@@ -42,7 +41,7 @@ Finished unless you have TwinSAFE!
 Optional - TwinSAFE auto loader. 
 TwinSAFE Option 1:
 The best approach for most applications is to load the TwinSAFE project via PLC code. In this repository, sample PLC code is added in the TwinSAFE folder to show how to load a twinSAFE program into the safety proessor. The safety program is a .bin file generated from TwinCAT. You target that bin file with the sample code. I will not detail every step but it is possible to get the safety project 100% loaded automaticly so no human intervention is required. Good luck!
-I've included a script line that copys the .bin file in the varient folder to the C:\TwinSAFEProgram\. I only did this as a template. However, you could easly just stick it in the TwinCAT boot folder. 
+I've included a script line that copys the .bin file in the varient folder to the C:\TwinSAFEProgram\. I only did this as a template. However, you could easly just stick it in the TwinCAT boot folder. All that matters is the .bin file makes it onto the PC's hard drive and that your PLC code knows the files location.
 
 TwinSAFE Option 2:
 Use twinSAFELoader.exe. If no PLC license is being used then this is your path forward. I've decided not to include how to acomplish this in the script but I beleive it to be 100% possible. 

@@ -92,8 +92,20 @@ function CopyFolderToFolder($ToFolder, $FromFolder, $DeleteFilesInCopyToFolder)
         }       
 
         return $Result  
- 
     }
+    function PathFolderHasExecutableFile($FolderPath) 
+    {   
+        $InstallerFileName = Get-ChildItem -Path  $FolderPath -Force -Recurse -File | where Extension -eq '.exe'
+
+        if ($($InstallerFileName | measure).Count -ge 1){
+             return $true 
+        }
+        else
+        {
+            return $false 
+        }  
+    }
+
 
     function Reboot() 
     {   
@@ -118,3 +130,5 @@ function CopyFolderToFolder($ToFolder, $FromFolder, $DeleteFilesInCopyToFolder)
 ##########################################################################################################################
 ## End Declare functions
 #############################################################################################################################
+
+

@@ -53,8 +53,46 @@ if($VarientSubFolder -eq $null -or $VarientSubFolder.Length -eq 0){
     $VarientSubFolder = "MachineDefaultVarient" #Can be edited to change what folder boot and HMI projects are stored. Easier to edit this variable then edit script to change script for differnet varients.
 }
 $RootInstallFolderExist = Test-Path -Path $LocalDirectoryProgramsToBeInstalled
+$HMIInstallerFolderPath = $($Scriptdir + '\' + $SubFolderProgramsToBeInstalled +'\' + 'TF2000_HMI')  
+$ChromeInstallerFolderPath =  "ProgramsToBeInstalled\chrome-win"
+$TwinCATInstallerFolderPath =  $($Scriptdir + '\' + $SubFolderProgramsToBeInstalled +'\' + 'TwinCAT3.1')
 ##########################################################################################################################
 ## End Settings
+#############################################################################################################################
+
+#############################################################################################################################
+## Checks  :: Designed to check if user has script configured. IE: did they copy the installers
+##########################################################################################################################
+if($EnableInstallTwinCATHMI)
+{
+    if($(PathFolderHasExecutableFile $HMIInstallerFolderPath) -eq $false)
+    {
+        WriteLog $("Missing HMI installer. Please disable HMI installer or add the installer to the folder outlined in the help file.")
+         [System.Windows.MessageBox]::Show('Error - HMI installer does not exist')
+        Exit
+    }
+}
+
+if($EnableInstallChrome)
+{
+    if($(PathFolderHasExecutableFile $ChromeInstallerFolderPath) -eq $false)
+    {
+        WriteLog $("Missing Chrome files. Please disable chrome installer by editing script tag EnableInstallChrome or add the files to the folder outlined in the help file.")
+         [System.Windows.MessageBox]::Show('Error - Missing chrome install files. ')
+        Exit
+    }
+}
+if($EnableInstallTwinCAT)
+{
+    if($(PathFolderHasExecutableFile $TwinCATInstallerFolderPath) -eq $false)
+    {
+        WriteLog $("Missing TwinCAT installer. Please disable TwinCAT installer or add the installer to the folder outlined in the help file.")
+         [System.Windows.MessageBox]::Show('Error - TwinCAT installer not found')
+        Exit
+    }
+}
+##########################################################################################################################
+## End Checks
 #############################################################################################################################
 
 #############################################################################################################################
@@ -78,6 +116,7 @@ $RootInstallFolderExist = Test-Path -Path $LocalDirectoryProgramsToBeInstalled
 ##########################################################################################################################
 ## End Load file
 #############################################################################################################################
+
 
 
 #############################################################################################################################
@@ -197,7 +236,7 @@ switch([int]$InstallProgress) {
 
         ## Start Installers
         if($EnableInstallTwinCAT){
-            $InstallerFilePath = GetFilePathFromFolder $($Scriptdir + '\' + $SubFolderProgramsToBeInstalled +'\' + 'TwinCAT3.1')
+            $InstallerFilePath = GetFilePathFromFolder $TwinCATInstallerFolderPath
             WriteLog $("Starting installation TwinCAT 3 at Path: " + $InstallerFilePath)
             if($EnableDebugMode -ne 1){           
                 Start-Process $InstallerFilePath -argumentlist '/s /v"/qr ALLUSERS=1 REBOOT=ReallySuppress"' -Wait
@@ -214,11 +253,13 @@ switch([int]$InstallProgress) {
             }
         }
 
-        if($EnableInstallTwinCATHMI){
-            $InstallerFilePath = GetFilePathFromFolder $($Scriptdir + '\' + $SubFolderProgramsToBeInstalled +'\' + 'TF2000_HMI')
-            WriteLog $("Starting installation TwinCAT HMI at Path: " + $InstallerFilePath)
+              
+        if($EnableInstallTwinCATHMI)
+        {
+            $HMIInstallerFilePath = GetFilePathFromFolder $HMIInstallerFolderPath  
+            WriteLog $("Starting installation TwinCAT HMI at Path: " + $HMIInstallerFilePath)
             if($EnableDebugMode -ne 1){           
-                Start-Process $InstallerFilePath -argumentlist '/s /v"/qr ALLUSERS=1 REBOOT=ReallySuppress"' -Wait
+                Start-Process $HMIInstallerFilePath -argumentlist '/s /v"/qr ALLUSERS=1 REBOOT=ReallySuppress"' -Wait
             }
         }
 
@@ -226,14 +267,15 @@ switch([int]$InstallProgress) {
 
         if($EnableInstallChrome){
             WriteLog $("Copying Chrome")
-            CopyFolderToFolder "C:\Chrome" "ProgramsToBeInstalled\chrome-win" 0
+            CopyFolderToFolder "C:\Chrome" $ChromeInstallerFolderPath 0
+
 
             WriteLog $("Copying Chrome shortcut link to desktop")
             CopyFileToFolder "C:\Users\Administrator\Desktop" "ProgramsToBeInstalled\Batch_Shortcuts\HMIShortcut.lnk"
 
             WriteLog $("Copying Chrome shortcut link to startup")
             CopyFileToFolder "C:\TwinCAT\3.1\Target\StartUp" "ProgramsToBeInstalled\Batch_Shortcuts\HMIShortcut.lnk"
-        }
+            }
 
 
 
@@ -263,8 +305,11 @@ switch([int]$InstallProgress) {
 
         WriteLog $("Delete auto start script command from: " + $StartupFilePath)
         Remove-Item -Path $StartupFilePath
-        $InstallProgress = [int]100
-        SaveSettingToFile $InstallProgress
+
+        WriteLog $("Delete progress folder")
+        Remove-Item -Path $StartupFilePath
+        ##$InstallProgress = [int]100
+        ##SaveSettingToFile $InstallProgress
 
         Write-Output $("####################################################################")
         Write-Output $("##################### Finishing Installation #######################")
