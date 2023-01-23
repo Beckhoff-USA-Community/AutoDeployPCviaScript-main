@@ -12,10 +12,13 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[Counter:=Counter+1;
-]]></ST>
+
+
+Safety_BckpRstr();]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
       <LineId Id="2" Count="0" />
+      <LineId Id="15" Count="1" />
       <LineId Id="6" Count="0" />
     </LineIds>
   </POU>

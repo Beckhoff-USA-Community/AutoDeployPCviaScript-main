@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_SafetyAutoLoad" Id="{287fdb8f-1f76-486d-a720-ba86ee113b71}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_SafetyAutoLoad
+VAR
+	arEcNetId				AT %I* : T_AmsNetIdArr;
+	nEcPort					AT %I* : WORD;
+	arBufferBckpRstr		: ARRAY[0..16#FFFF] OF BYTE;
+	sFileNameBckpRstr		: T_MaxString := 'C:\ProgramsToBeInstalled\Untitled2.bin';
+	sNetIdRWFileBckpRstr	: T_AmsNetID := '5.25.217.162.1.1';	
+
+	fbRestoreLogicProgram: FB_RESTORELOGICPROGRAM;
+	refEcNetId: REFERENCE TO ARRAY [0..5] OF BYTE;
+	refBuffer: REFERENCE TO ARRAY [0..16#FFFF] OF BYTE;
+	nEcPort: WORD;
+	sFileName: T_MaxString;
+	sNetIdRWFile: T_AmsNetID;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+
+fbRestoreLogicProgram(
+	bExecute:= , 
+	au8EcatNetId:= refEcNetId, 
+	u16EcatPort:= nEcPort, 
+	u32BufferAddress:= ADR(refBuffer), 
+	u32BufferSize:= SIZEOF(refBuffer), 
+	sFileName:= sFileName, 
+	sNetIDReadFile:= sNetIdRWFile, );	]]></ST>
+    </Implementation>
+    <LineIds Name="FB_SafetyAutoLoad">
+      <LineId Id="37" Count="9" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

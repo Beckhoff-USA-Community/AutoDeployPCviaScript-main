@@ -20,7 +20,13 @@
     <Compile Include="PlcTask.TcTTO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\FB_SafetyAutoLoad.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\MAIN.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Safety_BckpRstr.TcPOU">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -38,6 +44,10 @@
     <PlaceholderReference Include="Tc2_System">
       <DefaultResolution>Tc2_System, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_System</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="TC3_EL6910_Backup_Restore">
+      <DefaultResolution>TC3_EL6910_Backup_Restore, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>TC3_EL6910_Backup_Restore</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="Tc3_Module">
       <DefaultResolution>Tc3_Module, * (Beckhoff Automation GmbH)</DefaultResolution>

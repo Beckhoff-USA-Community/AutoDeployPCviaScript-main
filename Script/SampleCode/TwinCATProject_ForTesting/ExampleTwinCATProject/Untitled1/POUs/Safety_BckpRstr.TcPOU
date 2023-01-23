@@ -1,0 +1,261 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Safety_BckpRstr" Id="{95235ad6-8c26-41d9-9dfb-6be8012dc885}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Safety_BckpRstr
+VAR
+	/// Function to Get or Set device to specified state
+	fbEcStateMachine: FB_EcStateMachine;
+	stEcSlaveState: ST_EcSlaveState;
+	stReqEcSlaveState: ST_EcSlaveState;
+	stGetSlaveState: ST_TcGeneralOutputs;
+	stSetSlaveState: ST_TcGeneralOutputs;
+	/// better to be stored in File or on NOV-Ram
+	nProjectSN: UDINT := 756788;
+	/// better to be stored in File or on NOV-Ram
+	nProjectCRC: WORD := 16#6207;
+	/// Mapped to SerialNumber of EL69xx
+	nFoundSN: UDINT;
+	/// Mapped to CRC of EL69xx
+	nFoundCRC: WORD;
+	nStateCheckSn: UINT;
+	bInit: BOOL := TRUE;
+	bSnOk: BOOL;
+	bCrcOk: BOOL;
+	sMessageText: STRING;
+	nTryCycle: INT;
+	bErrAck: BOOL;
+	/// #################################################
+	/// CoE case functionality
+	/// #################################################
+	fbCoE_EL69xx: FB_CoE;
+	iCoe: I_CoE;
+	stCoE: ST_TcGeneralOutputs;
+	ReadSafetyCoE: INT;
+	bReadSafePlcInfoDone: BOOL;
+	/// #############################################
+	/// Backup and restore functionality
+	/// #############################################
+	fbSafetyBckpRstr: FB_SafetyAutoLoad;
+	stSafetyBckpRstr: ST_TcOutputsSafetyBckpRstr;
+	bRestore: BOOL;
+	bBackup: BOOL;
+	/// Visu-button to start restore
+	bBtnRestore: BOOL;
+	/// Visu-button to start backup
+	bBtnBackup: BOOL;
+	bProjectRestored: BOOL;
+	bufEcNetId: ARRAY[0..5] OF BYTE;
+	bReadSafePlcInfo: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//##################################################
+// Case condition of backup and restore
+//##################################################
+CASE nStateCheckSn OF
+0: (* Init State *)
+	sMessageText := '';
+	//##################################################
+	// Device state
+	//##################################################
+	fbEcStateMachine.NetId := F_CreateAmsNetId(nIds:= GVL_SafetyBckpRstr.arEcNetId); 
+	fbEcStateMachine.SlaveAddr := WORD_TO_UINT(GVL_SafetyBckpRstr.nEcPort);
+	fbEcStateMachine.ReqSlaveState(bExecute := FALSE);
+	fbEcStateMachine.GetSlaveState(bExecute := FALSE);
+	stReqEcSlaveState.deviceState := 0;
+	nTryCycle := 0;
+	//##################################################
+	// Backup and restore
+	//##################################################
+	bRestore := FALSE;
+	bBackup := FALSE;
+	bReadSafePlcInfo := FALSE;
+	fbSafetyBckpRstr.SaveLogicProgram(bExecute := FALSE);
+	fbSafetyBckpRstr.RestoreLogicProgram(bExecute := FALSE);
+	bufEcNetId := GVL_SafetyBckpRstr.arEcNetId;
+	fbSafetyBckpRstr.EcNetId REF= bufEcNetId;
+	fbSafetyBckpRstr.EcPort := GVL_SafetyBckpRstr.nEcPort;
+	fbSafetyBckpRstr.Buffer REF= GVL_SafetyBckpRstr.arBufferBckpRstr;
+	fbSafetyBckpRstr.NetIdRWFile := GVL_SafetyBckpRstr.sNetIdRWFileBckpRstr;
+	fbSafetyBckpRstr.FileName := GVL_SafetyBckpRstr.sFileNameBckpRstr;
+	
+	IF bInit THEN
+		stReqEcSlaveState.deviceState := EC_DEVICE_STATE_PREOP;
+		nStateCheckSn := 20; // Get EL69xx
+	END_IF
+	//############################
+	// Manual Backup
+	IF bBtnBackup THEN
+		nStateCheckSn := 100; // Backup safety project
+	END_IF
+	//############################
+	// Manual Restore		
+	IF bBtnRestore THEN
+		nStateCheckSn := 110; // Restore safety project
+	END_IF
+		
+10: (* Request State of EL69xx *)
+	fbEcStateMachine.EcSetState := stReqEcSlaveState.deviceState;
+	fbEcStateMachine.ReqSlaveState(bExecute := TRUE, stSetSlaveState => stSetSlaveState);
+	
+	IF NOT stSetSlaveState.bError THEN
+		IF NOT stSetSlaveState.bBusy THEN
+			fbEcStateMachine.ReqSlaveState(bExecute := FALSE);
+			nStateCheckSn := 20;
+		END_IF
+	ELSE
+		sMessageText := 'Error "Set State"';
+		nStateCheckSn := 777;
+	END_IF
+	
+20: (* GetSlaveState of EL69xx *)
+	fbEcStateMachine.GetSlaveState(bExecute := TRUE, stGetSlaveState => stGetSlaveState);
+	stEcSlaveState := fbEcStateMachine.EcGetState;
+	
+ 	IF NOT stGetSlaveState.bError THEN
+		IF NOT stGetSlaveState.bBusy AND (stEcSlaveState.deviceState = stReqEcSlaveState.deviceState) AND NOT bInit AND bRestore THEN
+			fbEcStateMachine.GetSlaveState(bExecute := FALSE);
+			nTryCycle := 0;
+			nStateCheckSn := 110;
+		ELSIF NOT stGetSlaveState.bBusy AND (stEcSlaveState.deviceState = stReqEcSlaveState.deviceState) AND NOT bInit THEN
+			fbEcStateMachine.GetSlaveState(bExecute := FALSE);
+			nTryCycle := 0;
+			nStateCheckSn := 0;	
+		ELSIF NOT stGetSlaveState.bBusy AND (stEcSlaveState.deviceState = stReqEcSlaveState.deviceState) AND bInit THEN
+			fbEcStateMachine.GetSlaveState(bExecute := FALSE);
+			nTryCycle := 0;
+			nStateCheckSn := 30;
+		ELSIF NOT stGetSlaveState.bBusy AND (stEcSlaveState.deviceState <> stReqEcSlaveState.deviceState) AND (nTryCycle < 9) THEN
+			fbEcStateMachine.GetSlaveState(bExecute := FALSE);
+			nTryCycle := nTryCycle + 1;
+			nStateCheckSn := 10;
+		ELSIF NOT stGetSlaveState.bBusy AND (stEcSlaveState.deviceState <> stReqEcSlaveState.deviceState) AND (nTryCycle >= 9) THEN
+			fbEcStateMachine.GetSlaveState(bExecute := FALSE);
+			nStateCheckSn := 777;
+		END_IF
+	ELSE
+		sMessageText := 'Error "Get State"';
+		nStateCheckSn := 777;
+	END_IF
+	
+30: (* Check SN *)	
+	bReadSafePlcInfo := TRUE; // Start CoE request of SafePlcInfoData
+	IF bReadSafePlcInfoDone THEN
+		IF (nProjectSN = nFoundSN) THEN
+			bSnOk := TRUE;
+			nStateCheckSn := 40; // Check CRC
+		ELSE
+			nProjectSN := nFoundSN;
+			bSnOk := FALSE;
+			nStateCheckSn := 40; // Check CRC
+		END_IF	
+	END_IF
+
+40: (* Check CRC *)
+	bInit := FALSE;
+	IF (nProjectCRC = nFoundCRC) AND NOT  bProjectRestored THEN
+		bCrcOk := TRUE;
+		stReqEcSlaveState.deviceState := EC_DEVICE_STATE_OP;
+		nStateCheckSn := 10; // Set EL69xx to OP
+	ELSIF (nFoundCRC <> 0) AND bProjectRestored THEN
+		nProjectCRC := nFoundCRC;
+		bCrcOk := TRUE;
+		nStateCheckSn := 0;
+	ELSE 
+		bCrcOk := FALSE;
+		nStateCheckSn := 50; // Check CRC
+	END_IF
+	
+50: (* CRC zero ? -> New EL69xx *)	
+	IF (nFoundCRC = 0) THEN
+		stReqEcSlaveState.deviceState := EC_DEVICE_STATE_OP;
+		bRestore := TRUE;
+		nStateCheckSn := 10; // Set EL69xx to OP		
+	ELSE
+		sMessageText := 'No way out! Download with engineering system!';
+		nStateCheckSn := 777;	
+	END_IF
+
+100: (* Backup *)
+	fbSafetyBckpRstr.SaveLogicProgram(bExecute := TRUE, stTcOutputsSafetyBckp => stSafetyBckpRstr);
+	
+	IF stSafetyBckpRstr.stTcGeneralOutputs.bError THEN
+		sMessageText := 'Error "Backup"';
+		nStateCheckSn := 777;
+	ELSIF stSafetyBckpRstr.stTcGeneralOutputs.bDone  THEN
+		nStateCheckSn := 0;
+	END_IF
+	
+110: (* Restore Projekt *)
+	fbSafetyBckpRstr.RestoreLogicProgram(bExecute := TRUE, stTcOutputsSafetyRstr => stSafetyBckpRstr);
+	
+	IF stSafetyBckpRstr.stTcGeneralOutputs.bError THEN
+		sMessageText := 'Error "Restore"';
+		nStateCheckSn := 777;
+	ELSIF stSafetyBckpRstr.stTcGeneralOutputs.bDone  THEN
+		bProjectRestored := TRUE;
+		nStateCheckSn := 30; // Check SN and CRC again
+	END_IF
+777: (* Error *)
+	IF bErrAck THEN
+		sMessageText := '';
+		stSafetyBckpRstr.sResult := '';
+		nStateCheckSn := 0;
+	END_IF
+END_CASE
+
+//##################################################
+// Case condition of CoE read parameters of SafePLC
+//##################################################
+CASE ReadSafetyCoE OF
+0: (* initialization *)	
+	bReadSafePlcInfoDone := FALSE;
+	IF bReadSafePlcInfo THEN
+		bReadSafePlcInfo := FALSE;
+		iCoE := fbCoE_EL69xx;
+		iCoe.NetId := F_CreateAmsNetId(nIds:= GVL_SafetyBckpRstr.arEcNetId); 
+		iCoE.SlaveAddress := 1008; // Address of EL69xx
+		ReadSafetyCoE := 10;
+	END_IF
+	
+10:	(* Read serial number of slave *)
+	iCoE.Index := 16#F980;
+	iCoE.SubIndex := 16#2;
+	iCoE.DstBuf := ADR(nFoundSN);
+	iCoE.BufLen := SIZEOF(nFoundSN);
+	iCoE.CoERead(bExecute:=TRUE, stCoeRead=> stCoE);	
+	
+	IF stCoE.bError THEN
+		ReadSafetyCoE := 777;
+	ELSIF NOT stCoE.bBusy THEN
+		iCoE.CoERead(bExecute:=FALSE, stCoeRead=> stCoE);
+		ReadSafetyCoE := 30;
+	END_IF
+
+30:	(* Read crc of slave *)
+	iCoE.Index := 16#F980;
+	iCoE.SubIndex := 16#3;
+	iCoE.DstBuf := ADR(nFoundCRC);
+	iCoE.BufLen := SIZEOF(nFoundCRC);
+	iCoE.CoERead(bExecute:=TRUE, stCoeRead=> stCoE);	
+	
+	IF stCoE.bError THEN
+		ReadSafetyCoE := 777;
+	ELSIF NOT stCoE.bBusy THEN
+		iCoE.CoERead(bExecute:=FALSE, stCoeRead=> stCoE);
+		bReadSafePlcInfoDone := TRUE;
+		ReadSafetyCoE := 0;
+	END_IF
+	
+777: (* Error *)
+	IF bErrAck THEN
+		ReadSafetyCoE := 0;
+	END_IF
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="Safety_BckpRstr">
+      <LineId Id="3" Count="201" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
