@@ -12,7 +12,7 @@ Install Chromium
 Insert license file  
 Insert Boot project  
 Insert HMI project  
-Copy TwinSAFE bin file to local directory
+Copy TwinSAFE bin file to local directory  
 Reboot  
 Set auto start TwinCAT to true  
 Set local IP address  
