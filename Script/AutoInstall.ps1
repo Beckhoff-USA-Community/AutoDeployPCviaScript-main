@@ -15,7 +15,7 @@ param($VarientSubFolder, $EnableDebugMode, $ResetInsallProgress)
 #############################################################################################################################
 
 #############################################################################################################################
-## Set Policy
+## Set Policy - This grants the script access to specific windows features. For example, adding files to the windows startup list.
 ##########################################################################################################################
 Set-ExecutionPolicy Unrestricted -force
 #set-executionpolicy remotesigned
