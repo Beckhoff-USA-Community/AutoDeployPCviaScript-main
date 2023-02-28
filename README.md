@@ -9,6 +9,7 @@ Reboot
 Install TwinCAT  
 Install HMI  
 Install Chromium  
+Install Supplements: IE: OPC UA Server.
 Insert license file  
 Insert Boot project  
 Insert HMI project  
