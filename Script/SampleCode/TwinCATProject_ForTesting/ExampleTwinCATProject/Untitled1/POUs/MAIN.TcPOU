@@ -14,7 +14,7 @@ END_VAR
       <ST><![CDATA[Counter:=Counter+1;
 
 
-Safety_BckpRstr();]]></ST>
+//Safety_BckpRstr();]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
       <LineId Id="2" Count="0" />

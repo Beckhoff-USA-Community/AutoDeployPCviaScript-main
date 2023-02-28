@@ -12,6 +12,9 @@ Copy TwinCAT HMI installer to folder: (Or remove the enable to install TwinCAT H
 Download and copy chromium to: (https://www.chromium.org/getting-involved/download-chromium/) HINT: the correct download is just a bunch of raw files, not an installer.
 *\Script\ProgramsToBeInstalled\chrome-win\
 
+Copy any Beckhoff supplements that need to be installed to folder. Note, 3rd party installers may also work in this folder.  
+*\Script\ProgramsToBeInstalled\supplements\
+
 Step2:
 Copy your TwinCAT boot folder from a working system to *\Script\MachineDefaultVarient\TwinCATBootFolder
 Copy your TwinCAT HMI boot folder from a working system to *\Script\MachineDefaultVarient\TcHmiProject

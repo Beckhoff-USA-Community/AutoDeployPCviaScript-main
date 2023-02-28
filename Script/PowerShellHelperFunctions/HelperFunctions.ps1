@@ -93,6 +93,9 @@ function CopyFolderToFolder($ToFolder, $FromFolder, $DeleteFilesInCopyToFolder)
 
         return $Result  
     }
+
+
+
     function PathFolderHasExecutableFile($FolderPath) 
     {   
         $InstallerFileName = Get-ChildItem -Path  $FolderPath -Force -Recurse -File | where Extension -eq '.exe'

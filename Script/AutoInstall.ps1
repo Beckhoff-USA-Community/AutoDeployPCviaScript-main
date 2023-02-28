@@ -55,7 +55,8 @@ if($VarientSubFolder -eq $null -or $VarientSubFolder.Length -eq 0){
 }
 $RootInstallFolderExist = Test-Path -Path $LocalDirectoryProgramsToBeInstalled
 $HMIInstallerFolderPath = $($Scriptdir + '\' + $SubFolderProgramsToBeInstalled +'\' + 'TF2000_HMI')  
-$ChromeInstallerFolderPath =  "ProgramsToBeInstalled\chrome-win"
+$SupplementInstallerFolderPath = $($Scriptdir + '\' + $SubFolderProgramsToBeInstalled +'\' + 'Supplements')  
+$ChromeInstallerFolderPath =  $($Scriptdir + '\' + $SubFolderProgramsToBeInstalled +'\' + "chrome-win")
 $TwinCATInstallerFolderPath =  $($Scriptdir + '\' + $SubFolderProgramsToBeInstalled +'\' + 'TwinCAT3.1')
 ##########################################################################################################################
 ## End Settings
@@ -93,6 +94,7 @@ if($InstallProgress -eq [int]0){ #Only check the installers on the first start o
     {
         if($(PathFolderHasExecutableFile $HMIInstallerFolderPath) -eq $false)
         {
+            WriteLog $("Missing hmi installer." + $HMIInstallerFolderPath)
             WriteLog $("Missing HMI installer. Please disable HMI installer or add the installer to the folder outlined in the help file.")
             [System.Windows.MessageBox]::Show('Error - HMI installer does not exist')
             Read-Host -Prompt "Press Enter to exit"
@@ -104,6 +106,7 @@ if($InstallProgress -eq [int]0){ #Only check the installers on the first start o
     {
         if($(PathFolderHasExecutableFile $ChromeInstallerFolderPath) -eq $false)
         {
+            WriteLog $("Missing Chrome files." + $ChromeInstallerFolderPath)
             WriteLog $("Missing Chrome files. Please disable chrome installer by editing script tag EnableInstallChrome or add the files to the folder outlined in the help file.")
             [System.Windows.MessageBox]::Show('Error - Missing chrome install files. ')
             Exit
@@ -114,6 +117,7 @@ if($InstallProgress -eq [int]0){ #Only check the installers on the first start o
     {
         if($(PathFolderHasExecutableFile $TwinCATInstallerFolderPath) -eq $false)
         {
+            WriteLog $("Missing TwinCAT installer." + $TwinCATInstallerFolderPath)
             WriteLog $("Missing TwinCAT installer. Please disable TwinCAT installer or add the installer to the folder outlined in the help file.")
             [System.Windows.MessageBox]::Show('Error - TwinCAT installer not found')
             Exit
@@ -121,6 +125,9 @@ if($InstallProgress -eq [int]0){ #Only check the installers on the first start o
         }
     }
 }
+
+
+
 ##########################################################################################################################
 ## End Checks
 #############################################################################################################################
@@ -271,7 +278,8 @@ switch([int]$InstallProgress) {
 
 
 
-        if($EnableInstallChrome){
+        if($EnableInstallChrome)
+        {
             WriteLog $("Copying Chrome")
             CopyFolderToFolder "C:\Chrome" $ChromeInstallerFolderPath 0
 
@@ -281,8 +289,19 @@ switch([int]$InstallProgress) {
 
             WriteLog $("Copying Chrome shortcut link to startup")
             CopyFileToFolder "C:\TwinCAT\3.1\Target\StartUp" "ProgramsToBeInstalled\Batch_Shortcuts\HMIShortcut.lnk"
-            }
+        }
 
+
+        #Searches a folder called supplements and installs everything it can find in that folder. 
+        $InstallerFileNameList = Get-ChildItem -Path  $SupplementInstallerFolderPath  -Force -Recurse -File | where Extension -eq '.exe'
+        foreach ($file in $InstallerFileNameList) {
+            $filepath = $SupplementInstallerFolderPath.TrimEnd('\') + '\' + $file
+  
+            WriteLog $("Starting installation of : " + $filepath)
+            if($EnableDebugMode -ne 1){           
+                Start-Process $filepath -argumentlist '/s /v"/qr ALLUSERS=1 REBOOT=ReallySuppress"' -Wait
+            }
+        }
 
 
         Reboot

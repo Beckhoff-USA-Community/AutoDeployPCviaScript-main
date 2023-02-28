@@ -2,11 +2,11 @@
   <div id="ViewDesktopBeckhoffLogo" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiImage" data-tchmi-src="Images/Beckhoff_Logo.svg" data-tchmi-left="20" data-tchmi-top="20" data-tchmi-width="194" data-tchmi-height="57">
 
   </div>
-<div id="TcHmiButton" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-height="50" data-tchmi-height-unit="px" data-tchmi-left="280" data-tchmi-left-unit="px" data-tchmi-text="Button" data-tchmi-top="165" data-tchmi-top-unit="px" data-tchmi-width="100" data-tchmi-width-unit="px" data-tchmi-word-wrap="true">
+<div id="TcHmiButton" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-height="50" data-tchmi-height-unit="px" data-tchmi-left="470" data-tchmi-left-unit="px" data-tchmi-text="Button" data-tchmi-top="468" data-tchmi-top-unit="px" data-tchmi-width="100" data-tchmi-width-unit="px" data-tchmi-word-wrap="true">
 </div>
-<div id="TcHmiButton_1" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-height="50" data-tchmi-height-unit="px" data-tchmi-left="379" data-tchmi-left-unit="px" data-tchmi-text="Button" data-tchmi-top="130" data-tchmi-top-unit="px" data-tchmi-width="100" data-tchmi-width-unit="px" data-tchmi-word-wrap="true">
+<div id="TcHmiButton_1" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-height="50" data-tchmi-height-unit="px" data-tchmi-left="470" data-tchmi-left-unit="px" data-tchmi-text="Button" data-tchmi-top="393" data-tchmi-top-unit="px" data-tchmi-width="100" data-tchmi-width-unit="px" data-tchmi-word-wrap="true">
 </div>
-<div id="TcHmiDatagrid" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiDatagrid" data-tchmi-height="200" data-tchmi-height-unit="px" data-tchmi-left="107" data-tchmi-left-unit="px" data-tchmi-top="298" data-tchmi-top-unit="px" data-tchmi-width="370" data-tchmi-width-unit="px">
+<div id="TcHmiDatagrid" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiDatagrid" data-tchmi-height="113" data-tchmi-height-unit="px" data-tchmi-left="47" data-tchmi-left-unit="px" data-tchmi-top="405" data-tchmi-top-unit="px" data-tchmi-width="393" data-tchmi-width-unit="px">
 <script data-tchmi-target-attribute="data-tchmi-src-column" type="application/json">
 [
   {
@@ -101,5 +101,7 @@
 }
 </script>
 
+</div>
+<div id="TcHmiTextblock" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-height="138" data-tchmi-height-unit="px" data-tchmi-left="159" data-tchmi-left-unit="px" data-tchmi-text="Sample Powershell deploy PC successful!" data-tchmi-top="123" data-tchmi-top-unit="px" data-tchmi-width="440" data-tchmi-width-unit="px" data-tchmi-word-wrap="true" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-font-size="40">
 </div>
 </div>

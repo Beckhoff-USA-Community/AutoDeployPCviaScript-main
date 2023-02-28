@@ -1,6 +1,27 @@
 ﻿[
   {
-    "serverExtensions": [],
+    "serverExtensions": [
+      {
+        "publishServerExtension": true,
+        "name": "ADS"
+      },
+      {
+        "publishServerExtension": true,
+        "name": "TcHmiLua"
+      },
+      {
+        "publishServerExtension": true,
+        "name": "TcHmiSqliteLogger"
+      },
+      {
+        "publishServerExtension": true,
+        "name": "TcHmiSrv"
+      },
+      {
+        "publishServerExtension": true,
+        "name": "TcHmiUserManagement"
+      }
+    ],
     "isNew": false,
     "profileName": "Local",
     "publishMode": "TcHmi",
