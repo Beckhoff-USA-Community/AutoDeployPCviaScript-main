@@ -17,8 +17,10 @@ param($VarientSubFolder, $EnableDebugMode, $ResetInsallProgress)
 #############################################################################################################################
 ## Set Policy - This grants the script access to specific windows features. For example, adding files to the windows startup list.
 ##########################################################################################################################
-Set-ExecutionPolicy Unrestricted -force
+$ErrorActionPreference = "SilentlyContinue"; #This will hide errors. The policy set will toss some errors which are not a problem. We just don't want the user to see the errors.
+Set-ExecutionPolicy Unrestricted
 #set-executionpolicy remotesigned
+$ErrorActionPreference = "Continue"; #Turning errors back on
 ##########################################################################################################################
 #############################################################################################################################
 
@@ -244,7 +246,7 @@ switch([int]$InstallProgress) {
             }
         }
    }
-   2 #Execute first installers. Basicly put all installers you need here. 
+   2 #Execute first installers.
    {
 
         ## Start Installers
@@ -291,8 +293,12 @@ switch([int]$InstallProgress) {
             CopyFileToFolder "C:\TwinCAT\3.1\Target\StartUp" "ProgramsToBeInstalled\Batch_Shortcuts\HMIShortcut.lnk"
         }
 
+        Reboot
+   } 
 
-        #Searches a folder called supplements and installs everything it can find in that folder. 
+   3
+   { 
+    #Searches a folder called supplements and installs everything it can find in that folder. 
         $InstallerFileNameList = Get-ChildItem -Path  $SupplementInstallerFolderPath  -Force -Recurse -File | where Extension -eq '.exe'
         foreach ($file in $InstallerFileNameList) {
             $filepath = $SupplementInstallerFolderPath.TrimEnd('\') + '\' + $file
@@ -303,12 +309,10 @@ switch([int]$InstallProgress) {
             }
         }
 
+    #Add any extra installers you need here. Example: Start-Process 'C:\Myprogram.exe' -argumentlist '/s /v"/qr ALLUSERS=1 REBOOT=ReallySuppress"' -Wait
 
-        Reboot
-   } 
 
-   3 #After installers finished and PC has rebooted reboot
-   { # Anything you need to do after installers run and a reboot. IE: put things into run mode and maybe copy some files.
+    #Anything you need to do after installers run and a reboot. IE: put things into run mode and maybe copy some files.
         if($EnableInstallTwinCAT){
             WriteLog $("Set Registery key for TwinCAT to run mode on bootup")
             Set-Itemproperty -Path 'HKLM:\SOFTWARE\WOW6432Node\Beckhoff\TwinCAT3\System' -Name 'SysStartupState' -value 5

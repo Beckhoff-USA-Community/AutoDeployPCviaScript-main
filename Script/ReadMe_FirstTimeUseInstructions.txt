@@ -2,6 +2,8 @@ Report bugs and recommendations to s.sidelinger@beckhoff.com
 Steps to use this script program to auto setup PC, install TwinCAT, HMI, and install your program.
 Enjoy! 
 
+Note for Shawn. Please move license setup to step 1.
+
 Step1:
 Copy TwinCAT installer to folder: 
 *\Script\ProgramsToBeInstalled\TwinCAT3.1\
