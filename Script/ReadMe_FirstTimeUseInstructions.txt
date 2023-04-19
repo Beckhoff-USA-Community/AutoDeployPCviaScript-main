@@ -1,20 +1,22 @@
 Report bugs and recommendations to s.sidelinger@beckhoff.com
 Steps to use this script program to auto setup PC, install TwinCAT, HMI, and install your program.
-Enjoy! 
 
-Note for Shawn. Please move license setup to step 1.
+The below steps can be completed in only a few minutes. Be patient, follow the steps and the script should work!
 
-Step1:
+Step1: 
+Copy Trial license to. This is optional. It's nice to create a trial license for testing the script if you don't have a dongle 
+*\Script\License\
+
 Copy TwinCAT installer to folder: 
 *\Script\ProgramsToBeInstalled\TwinCAT3.1\
 
 Copy TwinCAT HMI installer to folder: (Or remove the enable to install TwinCAT HMI from script)
 *\Script\ProgramsToBeInstalled\TF2000_HMI\
 
-Download and copy chromium to: (https://www.chromium.org/getting-involved/download-chromium/) HINT: the correct download is just a bunch of raw files, not an installer.
+Download and copy chromium (https://www.chromium.org/getting-involved/download-chromium/) HINT: the correct download is just a bunch of raw files, not an installer.
 *\Script\ProgramsToBeInstalled\chrome-win\
 
-Copy any Beckhoff supplements that need to be installed to folder. Note, 3rd party installers may also work in this folder.  
+Copy any Beckhoff supplements that need to be installed to the below folder. Note, 3rd party installers may also work in this folder.  
 *\Script\ProgramsToBeInstalled\supplements\
 
 Step2:
@@ -26,11 +28,13 @@ HINT: HMI stored here: C:\ProgramData\Beckhoff\TF2000 TwinCAT 3 HMI Server\servi
 HINT: TwinCAT boot stored: C:\TwinCAT\3.1\Boot
 HINT: twinsafe.bin file is generated from TC3 by right clicking on twinsafe project.
 
-Step3:
-Edit Powershell code starting at line ~200 to include extra installers
+Step3: 
+Find "#ADD YOUR CODE HERE". Add your special requirements.
+For sample code on how to do XYZ checkout folder: *\Script\ExampleScriptCode
+If you have a C60xx processor, you'll at the very least need to enable the lines of code which install the real time driver. Find this line of code # Install EtherCAT driver
 
 Step 4: 
-Remove Powershell code which copies license to TwinCAT license file. Search for the word "License". You may choose to keep this if you do not have a EL6070 or are running trial licenses like me.
+Empty.
 
 Step 5:
 Copy folder with all powershell files to USB stick

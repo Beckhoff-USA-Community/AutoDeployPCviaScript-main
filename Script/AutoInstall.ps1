@@ -296,9 +296,9 @@ switch([int]$InstallProgress) {
         Reboot
    } 
 
-   3
+   3 #Execute supplement installers and finish up. Set network IP's, AMS netid, install real time driver, set core isolation. Do everything you need to do after TwinCAT is installed.
    { 
-    #Searches a folder called supplements and installs everything it can find in that folder. 
+        #Searches a folder called supplements and installs everything it can find in that folder. 
         $InstallerFileNameList = Get-ChildItem -Path  $SupplementInstallerFolderPath  -Force -Recurse -File | where Extension -eq '.exe'
         foreach ($file in $InstallerFileNameList) {
             $filepath = $SupplementInstallerFolderPath.TrimEnd('\') + '\' + $file
@@ -309,10 +309,10 @@ switch([int]$InstallProgress) {
             }
         }
 
-    #Add any extra installers you need here. Example: Start-Process 'C:\Myprogram.exe' -argumentlist '/s /v"/qr ALLUSERS=1 REBOOT=ReallySuppress"' -Wait
+        #Add any extra installers you need here. 
+        # Start-Process 'C:\Myprogram.exe' -argumentlist '/s /v"/qr ALLUSERS=1 REBOOT=ReallySuppress"' -Wait
 
-
-    #Anything you need to do after installers run and a reboot. IE: put things into run mode and maybe copy some files.
+        #Anything you need to do after installers run and a reboot. IE: put things into run mode and maybe copy some files.
         if($EnableInstallTwinCAT){
             WriteLog $("Set Registery key for TwinCAT to run mode on bootup")
             Set-Itemproperty -Path 'HKLM:\SOFTWARE\WOW6432Node\Beckhoff\TwinCAT3\System' -Name 'SysStartupState' -value 5
@@ -325,15 +325,30 @@ switch([int]$InstallProgress) {
             Start-Service -Name 'TcHmiSrv' -PassThru
         }
 
+        #Final windows setup. Everything bellow is optional!
+
         WriteLog $("Setting IP address to: N/A")
         #Get-NetIPAddress -AddressFamily IPv4
         #New-NetIPAddress -InterfaceIndex 12 -IPAddress 192.168.0.1
 
+        # Install EtherCAT driver. This is required if you are using a standard network port for etherCAT or another realtime protocal.  
+        #$adapter_name = "Ethernet" #Look in your network settings to get the correct name of your NIC.
+        #Start-Process -Wait C:\TwinCAT\3.1\System\TcRteInstall.exe -ArgumentList "-installnic $adapter_name /S" -PassThru
+
         WriteLog $("Setting AMS Net Id to: N/A")
+        #Stop-Service -Name "TcSysSrv" -Force
         #Set-ItemProperty -path HKLM:\SOFTWARE\WOW6432Node\Beckhoff\TwinCAT3\System\ -Name "AmsnetId" -Value ([byte[]](0x01,0x01,0x01,0x01,0x01,0x01))
+        #Start-Service -Name "TcSysSrv"
+
+        #ADD YOUR CODE HERE
+        #ADD YOUR CODE HERE
+        #ADD YOUR CODE HERE
+        #ADD YOUR CODE HERE
+        #ADD YOUR CODE HERE
 
         #The following function does everything needed to clean up the project.
         FinishAndReboot
+        #Reboot 
    } 
 
    4  #Another reboot if needed
