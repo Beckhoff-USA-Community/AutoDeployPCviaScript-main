@@ -219,156 +219,162 @@ if($InstallFileExist -eq 0 -AND 0){
 
 $Done = 0
 While ($Done -eq 0){
-switch([int]$InstallProgress) {
-   0 #Inital setup 
-   {
-        #Create a startup file to auto execute this script. This makes the install progress 100% automatic if reboots are needed
-        WriteLog $("Creating Startup File to rerun script after reboot " + $InstallerFilePath)
-        New-Item -Path $StartupFilePath -ItemType File -Force
-        -join("powershell.exe -Command Start-Process PowerShell -ArgumentList '-File ", $Scriptdir, '\', $scriptName, ' ' , $VarientSubFolder, "' -Verb RunAs") | out-file -filepath $StartupFilePath -Append -Encoding Ascii    
+    switch([int]$InstallProgress) {
+       0 #Inital setup 
+       {
+            #Create a startup file to auto execute this script. This makes the install progress 100% automatic if reboots are needed
+            WriteLog $("Creating Startup File to rerun script after reboot " + $InstallerFilePath)
+            New-Item -Path $StartupFilePath -ItemType File -Force
+            -join("powershell.exe -Command Start-Process PowerShell -ArgumentList '-File ", $Scriptdir, '\', $scriptName, ' ' , $VarientSubFolder, "' -Verb RunAs") | out-file -filepath $StartupFilePath -Append -Encoding Ascii    
 
-        WriteLog $("Turn off TwinCAT security wizard. It's the web page that shows up on bootup")
-        Remove-ItemProperty -Path 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run' -Name 'StartSecurityWizard'
-    }
-    1 #Uninstall Software. - Optional. Can improve robustness of script. If you are trying to install an older version of TwinCAT this is required. 
-    {       
-        if($EnableUninstallTwinCATFirst -eq 1 -and $EnableDebugMode -ne 1)
-        {
-            WriteLog $("Uninstalling Software")
-            #Get Beckhoff installed software list
-            #$ListBeckhoffInstalledSoftware= @()       
-            $TwinCATInstalledInfo = Get-WmiObject -Class Win32_Product | where Name -eq 'Beckhoff TwinCAT 3.1 (Build 4024)' | select Name,Version
+            WriteLog $("Turn off TwinCAT security wizard. It's the web page that shows up on bootup")
+            Remove-ItemProperty -Path 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run' -Name 'StartSecurityWizard'
+        }
+
+        1 #Uninstall Software. - Optional. Can improve robustness of script. If you are trying to install an older version of TwinCAT this is required. 
+        {       
+            if($EnableUninstallTwinCATFirst -eq 1 -and $EnableDebugMode -ne 1)
+            {
+                WriteLog $("Uninstalling Software")
+                #Get Beckhoff installed software list
+                #$ListBeckhoffInstalledSoftware= @()       
+                $TwinCATInstalledInfo = Get-WmiObject -Class Win32_Product | where Name -eq 'Beckhoff TwinCAT 3.1 (Build 4024)' | select Name,Version
             
-            if($TwinCATInstalledInfo.Version.length -ge 2){ #Dumb check to make sure its alrady installed. One could check the version against the version you wish to install.
-                WriteLog $("Uninstalling TwinCAT build " + $TwinCATInstalledInfo.Version) #Version example '3.1.4024.35'
-                Get-Package $TwinCATInstalledInfo.Name | Uninstall-Package -Force;
-                Reboot
+                if($TwinCATInstalledInfo.Version.length -ge 2){ #Dumb check to make sure its alrady installed. One could check the version against the version you wish to install.
+                    WriteLog $("Uninstalling TwinCAT build " + $TwinCATInstalledInfo.Version) #Version example '3.1.4024.35'
+                    Get-Package $TwinCATInstalledInfo.Name | Uninstall-Package -Force;
+                    Reboot
+                }
             }
-        }
-   }
-   2 #Execute first installers.
-   {
+       }
 
-        ## Start Installers
-        if($EnableInstallTwinCAT){
-            $InstallerFilePath = GetFilePathFromFolder $TwinCATInstallerFolderPath
-            WriteLog $("Starting installation TwinCAT 3 at Path: " + $InstallerFilePath)
-            if($EnableDebugMode -ne 1){           
-                Start-Process $InstallerFilePath -argumentlist '/s /v"/qr ALLUSERS=1 REBOOT=ReallySuppress"' -Wait
+       2 #Execute first installers.
+       {
+
+            ## Start Installers
+            if($EnableInstallTwinCAT){
+                $InstallerFilePath = GetFilePathFromFolder $TwinCATInstallerFolderPath
+                WriteLog $("Starting installation TwinCAT 3 at Path: " + $InstallerFilePath)
+                if($EnableDebugMode -ne 1){           
+                    Start-Process $InstallerFilePath -argumentlist '/s /v"/qr ALLUSERS=1 REBOOT=ReallySuppress"' -Wait
+                }
+                WriteLog $("Copying License File") #You shouldn't need this if you use a EL6070. This is here for Testing with trial license!!!
+                CopyFolderToFolder "C:\TwinCAT\3.1\Target\License" "License" 0
+
+                WriteLog $("Copying Boot folder into TwinCAT 3")
+                CopyFolderToFolder "C:\TwinCAT\3.1\Boot" "*\TwinCATBootFolder" 0
+
+                if($EnableCopyTwinSAFEbinFile){
+                    WriteLog $("Copying TwinSAFE .bin folder to C:\TwinSAFEProject")
+                    CopyFolderToFolder "C:\TwinSAFEProject" "*\TwinSAFEProject" 0
+                }
             }
-            WriteLog $("Copying License File") #You shouldn't need this if you use a EL6070. This is here for Testing with trial license!!!
-            CopyFolderToFolder "C:\TwinCAT\3.1\Target\License" "License" 0
 
-            WriteLog $("Copying Boot folder into TwinCAT 3")
-            CopyFolderToFolder "C:\TwinCAT\3.1\Boot" "*\TwinCATBootFolder" 0
-
-            if($EnableCopyTwinSAFEbinFile){
-                WriteLog $("Copying TwinSAFE .bin folder to C:\TwinSAFEProject")
-                CopyFolderToFolder "C:\TwinSAFEProject" "*\TwinSAFEProject" 0
-            }
-        }
-
-              
-        if($EnableInstallTwinCATHMI)
-        {
-            $HMIInstallerFilePath = GetFilePathFromFolder $HMIInstallerFolderPath  
-            WriteLog $("Starting installation TwinCAT HMI at Path: " + $HMIInstallerFilePath)
-            if($EnableDebugMode -ne 1){           
-                Start-Process $HMIInstallerFilePath -argumentlist '/s /v"/qr ALLUSERS=1 REBOOT=ReallySuppress"' -Wait
-            }
+            Reboot
         }
 
+       3 #Execute installers that may have dependencies on TwinCAT.
+       {             
+            if($EnableInstallTwinCATHMI)
+            {
+                $HMIInstallerFilePath = GetFilePathFromFolder $HMIInstallerFolderPath  
+                WriteLog $("Starting installation TwinCAT HMI at Path: " + $HMIInstallerFilePath)
+                if($EnableDebugMode -ne 1){           
+                    Start-Process $HMIInstallerFilePath -argumentlist '/s /v"/qr ALLUSERS=1 REBOOT=ReallySuppress"' -Wait
+                }
+            }
 
 
-        if($EnableInstallChrome)
-        {
-            WriteLog $("Copying Chrome")
-            CopyFolderToFolder "C:\Chrome" $ChromeInstallerFolderPath 0
+            if($EnableInstallChrome)
+            {
+                WriteLog $("Copying Chrome")
+                CopyFolderToFolder "C:\Chrome" $ChromeInstallerFolderPath 0
 
 
-            WriteLog $("Copying Chrome shortcut link to desktop")
-            CopyFileToFolder "C:\Users\Administrator\Desktop" "ProgramsToBeInstalled\Batch_Shortcuts\HMIShortcut.lnk"
+                WriteLog $("Copying Chrome shortcut link to desktop")
+                CopyFileToFolder "C:\Users\Administrator\Desktop" "ProgramsToBeInstalled\Batch_Shortcuts\HMIShortcut.lnk"
 
-            WriteLog $("Copying Chrome shortcut link to startup")
-            CopyFileToFolder "C:\TwinCAT\3.1\Target\StartUp" "ProgramsToBeInstalled\Batch_Shortcuts\HMIShortcut.lnk"
-        }
+                WriteLog $("Copying Chrome shortcut link to startup")
+                CopyFileToFolder "C:\TwinCAT\3.1\Target\StartUp" "ProgramsToBeInstalled\Batch_Shortcuts\HMIShortcut.lnk"
+            }
 
-        Reboot
-   } 
+            Reboot
+       } 
 
-   3 #Execute supplement installers and finish up. Set network IP's, AMS netid, install real time driver, set core isolation. Do everything you need to do after TwinCAT is installed.
-   { 
-        #Searches a folder called supplements and installs everything it can find in that folder. 
-        $InstallerFileNameList = Get-ChildItem -Path  $SupplementInstallerFolderPath  -Force -Recurse -File | where Extension -eq '.exe'
-        foreach ($file in $InstallerFileNameList) {
-            $filepath = $SupplementInstallerFolderPath.TrimEnd('\') + '\' + $file
+       4 #Execute supplement installers and finish up. Set network IP's, AMS netid, install real time driver, set core isolation. Do everything you need to do after TwinCAT is installed.
+       { 
+            #Searches a folder called supplements and installs everything it can find in that folder. 
+            $InstallerFileNameList = Get-ChildItem -Path  $SupplementInstallerFolderPath  -Force -Recurse -File | where Extension -eq '.exe'
+            foreach ($file in $InstallerFileNameList) {
+                $filepath = $SupplementInstallerFolderPath.TrimEnd('\') + '\' + $file
   
-            WriteLog $("Starting installation of : " + $filepath)
-            if($EnableDebugMode -ne 1){           
-                Start-Process $filepath -argumentlist '/s /v"/qr ALLUSERS=1 REBOOT=ReallySuppress"' -Wait
+                WriteLog $("Starting installation of : " + $filepath)
+                if($EnableDebugMode -ne 1){           
+                    Start-Process $filepath -argumentlist '/s /v"/qr ALLUSERS=1 REBOOT=ReallySuppress"' -Wait
+                }
             }
+
+            #Add any extra installers you need here. 
+            # Start-Process 'C:\Myprogram.exe' -argumentlist '/s /v"/qr ALLUSERS=1 REBOOT=ReallySuppress"' -Wait
+
+            #Anything you need to do after installers run and a reboot. IE: put things into run mode and maybe copy some files.
+            if($EnableInstallTwinCAT){
+                WriteLog $("Set Registery key for TwinCAT to run mode on bootup")
+                Set-Itemproperty -Path 'HKLM:\SOFTWARE\WOW6432Node\Beckhoff\TwinCAT3\System' -Name 'SysStartupState' -value 5
+            }
+
+            if($EnableInstallTwinCATHMI){
+                WriteLog $("Stopping HMI service, Copying HMI Project files, then restarting HMI service")
+                Stop-Service -Name 'TcHmiSrv' -PassThru        
+                CopyFolderToFolder "C:\ProgramData\Beckhoff\TF2000 TwinCAT 3 HMI Server\service\TcHmiProject" "*\TcHmiProject" 1
+                Start-Service -Name 'TcHmiSrv' -PassThru
+            }
+
+            #Final windows setup. Everything bellow is optional!
+
+            WriteLog $("Setting IP address to: N/A")
+            #Get-NetIPAddress -AddressFamily IPv4
+            #New-NetIPAddress -InterfaceIndex 12 -IPAddress 192.168.0.1
+
+            # Install EtherCAT driver. This is required if you are using a standard network port for etherCAT or another realtime protocal.  
+             #Look in your network settings to get the correct name of your NIC.
+            #Start-Process -Wait C:\TwinCAT\3.1\System\TcRteInstall.exe -ArgumentList '-installnic "Ethernet 2" /S' -PassThru
+
+            WriteLog $("Setting AMS Net Id to: N/A")
+            #Stop-Service -Name "TcSysSrv" -Force
+            #Set-ItemProperty -path HKLM:\SOFTWARE\WOW6432Node\Beckhoff\TwinCAT3\System\ -Name "AmsnetId" -Value ([byte[]](0x01,0x01,0x01,0x01,0x01,0x01))
+            #Start-Service -Name "TcSysSrv"
+
+            #ADD YOUR CODE HERE
+            #ADD YOUR CODE HERE
+            #ADD YOUR CODE HERE
+            #ADD YOUR CODE HERE
+            #ADD YOUR CODE HERE
+
+            #The following function does everything needed to clean up the project.
+            FinishAndReboot
+            #Reboot 
+       } 
+
+       5  #Another reboot if needed
+       {
+            ##If extra reboots needed.
+
+            #Move "FinishAndReboot" function to here if you going to use this.
+
+       } 
+
+       ## Reset install progress if debug mode is on. Just a little trick when testing to make life easy.
+        Default {
+            $Done = 1
+            if($EnableDebugMode -eq 1)
+            {
+                $InstallProgress=0
+                SaveSettingToFile $InstallProgress
+            }      
         }
-
-        #Add any extra installers you need here. 
-        # Start-Process 'C:\Myprogram.exe' -argumentlist '/s /v"/qr ALLUSERS=1 REBOOT=ReallySuppress"' -Wait
-
-        #Anything you need to do after installers run and a reboot. IE: put things into run mode and maybe copy some files.
-        if($EnableInstallTwinCAT){
-            WriteLog $("Set Registery key for TwinCAT to run mode on bootup")
-            Set-Itemproperty -Path 'HKLM:\SOFTWARE\WOW6432Node\Beckhoff\TwinCAT3\System' -Name 'SysStartupState' -value 5
-        }
-
-        if($EnableInstallTwinCATHMI){
-            WriteLog $("Stopping HMI service, Copying HMI Project files, then restarting HMI service")
-            Stop-Service -Name 'TcHmiSrv' -PassThru        
-            CopyFolderToFolder "C:\ProgramData\Beckhoff\TF2000 TwinCAT 3 HMI Server\service\TcHmiProject" "*\TcHmiProject" 1
-            Start-Service -Name 'TcHmiSrv' -PassThru
-        }
-
-        #Final windows setup. Everything bellow is optional!
-
-        WriteLog $("Setting IP address to: N/A")
-        #Get-NetIPAddress -AddressFamily IPv4
-        #New-NetIPAddress -InterfaceIndex 12 -IPAddress 192.168.0.1
-
-        # Install EtherCAT driver. This is required if you are using a standard network port for etherCAT or another realtime protocal.  
-        #$adapter_name = "Ethernet" #Look in your network settings to get the correct name of your NIC.
-        #Start-Process -Wait C:\TwinCAT\3.1\System\TcRteInstall.exe -ArgumentList "-installnic $adapter_name /S" -PassThru
-
-        WriteLog $("Setting AMS Net Id to: N/A")
-        #Stop-Service -Name "TcSysSrv" -Force
-        #Set-ItemProperty -path HKLM:\SOFTWARE\WOW6432Node\Beckhoff\TwinCAT3\System\ -Name "AmsnetId" -Value ([byte[]](0x01,0x01,0x01,0x01,0x01,0x01))
-        #Start-Service -Name "TcSysSrv"
-
-        #ADD YOUR CODE HERE
-        #ADD YOUR CODE HERE
-        #ADD YOUR CODE HERE
-        #ADD YOUR CODE HERE
-        #ADD YOUR CODE HERE
-
-        #The following function does everything needed to clean up the project.
-        FinishAndReboot
-        #Reboot 
-   } 
-
-   4  #Another reboot if needed
-   {
-        ##If extra reboots needed.
-
-        #Move "FinishAndReboot" function to here if you going to use this.
-
-   } 
-
-   ## Reset install progress if debug mode is on. Just a little trick when testing to make life easy.
-    Default {
-        $Done = 1
-        if($EnableDebugMode -eq 1)
-        {
-            $InstallProgress=0
-            SaveSettingToFile $InstallProgress
-        }      
     }
-}
+#inside while loop. Add 1 to install progress if no reboot or exit is called
 $InstallProgress = [int]$InstallProgress + [int]1
 SaveSettingToFile $InstallProgress
 }
