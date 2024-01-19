@@ -51,7 +51,11 @@ $EnableCopyTwinSAFEbinFile = $true
 $CopyFilesToLocalDirectory= 0 # set to 1 if you wish to move the entire script and install files to the local hard drive. Can be nice if you wish to pull the USB stick out while installation is ongoing.
 $SubFolderProgramsToBeInstalled="ProgramsToBeInstalled" #Directory where TwinCAT install files are located. Can be a sub directory or a directory with a root name.
 $LocalDirectoryProgramsToBeInstalled = "C:\ProgramsToBeInstalled" #directory on local PC where log files, progress file to be located. If CopyFileToLocalDir true, then this folder gets script as well.
-$StartupFolderLocation = "C:\Users\Administrator\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" #Directory where batch file that executes script on bootup. This shouldn't be changed.
+#Windows changed the startup folder in 2023. Read comments below to know which one to be uncommented.
+#$StartupFolderLocation = "C:\Users\Administrator\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" #Older then 2023. Directory where batch file that executes script on bootup. This shouldn't be changed.
+$StartupFolderLocation = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp" #New since 2023Directory where batch file that executes script on bootup. This shouldn't be changed.
+
+
 if($VarientSubFolder -eq $null -or $VarientSubFolder.Length -eq 0){
     $VarientSubFolder = "MachineDefaultVarient" #Can be edited to change what folder boot and HMI projects are stored. Easier to edit this variable then edit script to change script for differnet varients.
 }
