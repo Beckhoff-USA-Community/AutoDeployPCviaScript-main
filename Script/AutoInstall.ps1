@@ -230,9 +230,38 @@ While ($Done -eq 0){
             WriteLog $("Creating Startup File to rerun script after reboot " + $InstallerFilePath)
             New-Item -Path $StartupFilePath -ItemType File -Force
             -join("powershell.exe -Command Start-Process PowerShell -ArgumentList '-File ", $Scriptdir, '\', $scriptName, ' ' , $VarientSubFolder, "' -Verb RunAs") | out-file -filepath $StartupFilePath -Append -Encoding Ascii    
+            #### to hide the powershell or command file, change above line of code to look more like this: cmd /c start /min "" powershell -WindowStyle Hidden -ExecutionPolicy Bypass -File "C:\TwinCAT\3.1\Target\Resource\AutoStartTwinCAT.ps1"
 
             WriteLog $("Turn off TwinCAT security wizard. It's the web page that shows up on bootup")
             Remove-ItemProperty -Path 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run' -Name 'StartSecurityWizard'
+
+            ##########################
+            ## Change User Password
+            ##########################
+            #WriteLog $("Changing Administrator password")
+            #$username = "Administrator"
+            #$password = "1"
+            #$passwordSec = ConvertTo-SecureString -String $password -AsPlainText -Force
+
+            # Create new user account if it does not exist
+            #$account = Get-LocalUser -Name $username -ErrorAction SilentlyContinue
+
+            # Change Password if User Exists
+            #if (-not ($null -eq $account)) {
+            #    $account = Get-LocalUser -Name $username
+            #    $account | Set-LocalUser -Password $passwordSec
+            #}
+            #else {
+            #    Write-Host "User named $username does not exist"
+            #}
+            ## since password is changed, change auto login
+            #$RegPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
+            #Set-ItemProperty $RegPath "AutoAdminLogon" -Value "1" -type String 
+            #Set-ItemProperty $RegPath "DefaultUsername" -Value "$username" -type String 
+            #Set-ItemProperty $RegPath "DefaultPassword" -Value "$password" -type String
+            ###################################
+
+
         }
 
         1 #Uninstall Software. - Optional. Can improve robustness of script. If you are trying to install an older version of TwinCAT this is required. 
@@ -348,6 +377,18 @@ While ($Done -eq 0){
             #Stop-Service -Name "TcSysSrv" -Force
             #Set-ItemProperty -path HKLM:\SOFTWARE\WOW6432Node\Beckhoff\TwinCAT3\System\ -Name "AmsnetId" -Value ([byte[]](0x01,0x01,0x01,0x01,0x01,0x01))
             #Start-Service -Name "TcSysSrv"
+
+
+            ##### Hide Desktop icons
+            #WriteLog $("Hidding Desktop icons")
+            #$Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+            #Set-ItemProperty -Path $Path -Name "HideIcons" -Value 1
+
+            ##### set Desktop wallpaper
+            #WriteLog $("Setting Desktop wallpaper")
+            #$wallpaperPath = "C:\TwinCAT\3.1\Target\Resource\Apps"
+           # $wallpaperFile = "MyPicture.png"
+            #Set-ItemProperty -path "HKCU:\Control Panel\Desktop\" -name wallpaper -value $wallpaperPath\$wallpaperFile
 
             #ADD YOUR CODE HERE
             #ADD YOUR CODE HERE

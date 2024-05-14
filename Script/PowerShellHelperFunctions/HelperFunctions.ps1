@@ -136,10 +136,12 @@ function CopyFolderToFolder($ToFolder, $FromFolder, $DeleteFilesInCopyToFolder)
         Remove-Item -Path $StartupFilePath
 
         #Remove progress folder so not to leave a trace. This is not needed but some people want the install progress to not leave anything behind.
-        WriteLog $("Delete progress folder")
-        Get-ChildItem -Path $LocalDirectoryProgramsToBeInstalled -Include *.* -File -Recurse | foreach { $_.Delete()}
-        Remove-Item $LocalDirectoryProgramsToBeInstalled
-
+       # if($CopyFilesToLocalDirectory -eq 0){
+            WriteLog $("Delete progress folder")
+            ##Get-ChildItem -Path $LocalDirectoryProgramsToBeInstalled -Include *.* -File -Recurse | foreach { $_.Delete()}#known issue is that a question shows up preventing removing of all files. Solution requires investigation
+            Remove-Item $LocalDirectoryProgramsToBeInstalled -Recurse -Force -Confirm:$false
+            Remove-Item $LocalDirectoryProgramsToBeInstalled
+       # }
 
         Write-Output $("####################################################################")
         Write-Output $("##################### Finishing Installation #######################")
